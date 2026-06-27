@@ -58,6 +58,29 @@
                 border: 1px solid rgba(22, 48, 32, 0.1);
             }
 
+            .meta {
+                display: grid;
+                gap: 10px;
+            }
+
+            .row {
+                display: flex;
+                justify-content: space-between;
+                gap: 14px;
+                align-items: baseline;
+                flex-wrap: wrap;
+            }
+
+            .label {
+                color: #476253;
+                font-size: 14px;
+            }
+
+            .value {
+                font-weight: 700;
+                color: #163020;
+            }
+
             code {
                 font-family: Consolas, monospace;
             }
@@ -71,21 +94,50 @@
     </head>
     <body>
         <main class="card">
-            <div class="pill">Return page</div>
-            <h1>Checkout returned to Laravel.</h1>
-            <p>
-                Paddle has redirected back to your app. Final subscription state depends on webhook delivery,
-                so confirm the endpoint is reachable from the Paddle dashboard.
-            </p>
-
-            <section class="panel">
-                <p><strong>Demo customer:</strong> {{ $user?->email ?? 'Not created yet' }}</p>
-                <p><strong>Local subscription:</strong> {{ $subscription?->status ?? 'Waiting for webhook sync' }}</p>
-                <p><strong>Billing record:</strong> {{ $billingRecord?->paddle_transaction_id ?? 'Waiting for successful payment webhook' }}</p>
-            </section>
-
+            <div class="pill">Billing Success</div>
+            <h1>Payment Completed</h1>
             <p>After Paddle confirms a successful charge, this app now stores a billing record in your local database.</p>
-            <a href="{{ route('home') }}">Back to the setup page</a>
+
+            @if ($subscription)
+                <section class="panel">
+                    <div class="meta">
+                        <div class="row">
+                            <span class="label">Customer</span>
+                            <span class="value">{{ $user?->name ?? 'Unknown user' }}</span>
+                        </div>
+                        <div class="row">
+                            <span class="label">Subscription ID</span>
+                            <span class="value">{{ $subscription->paddle_id }}</span>
+                        </div>
+                        <div class="row">
+                            <span class="label">Status</span>
+                            <span class="value">{{ $subscription->status }}</span>
+                        </div>
+                        <div class="row">
+                            <span class="label">Type</span>
+                            <span class="value">{{ $subscription->type }}</span>
+                        </div>
+                        @if ($billingRecord)
+                            <div class="row">
+                                <span class="label">Latest invoice</span>
+                                <span class="value">{{ $billingRecord->invoice_number ?? 'N/A' }}</span>
+                            </div>
+                        @endif
+                        @if ($subscription->items->isNotEmpty())
+                            <div class="row">
+                                <span class="label">Price IDs</span>
+                                <span class="value">{{ $subscription->items->pluck('price_id')->implode(', ') }}</span>
+                            </div>
+                        @endif
+                    </div>
+                </section>
+            @else
+                <section class="panel">
+                    <p>No synced subscription was found for this checkout yet.</p>
+                </section>
+            @endif
+
+            <a href="{{ route('subscriptions.index') }}">See subscription</a>
         </main>
     </body>
 </html>

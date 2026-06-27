@@ -210,95 +210,68 @@
     <body>
         @php
         // dd($user);
-            // $checkoutOptions = array_replace_recursive($checkout->options(), [
-            //     'settings' => [
-            //         'displayMode' => 'overlay',
-            //         'theme' => 'light',
-            //         'variant' => 'one-page',
-            //         'locale' => 'en',
-            //         'allowLogout' => false,
-            //         'successUrl' => route('billing.success'),
-            //     ],
-            // ]);
+            $checkoutOptions = array_replace_recursive($checkout->options(), [
+                'settings' => [
+                    'displayMode' => 'overlay',
+                    'theme' => 'light',
+                    'variant' => 'one-page',
+                    'locale' => 'en',
+                    'allowLogout' => false,
+                    'successUrl' => route('billing.success'),
+                ],
+            ]);
 
-            $amount = (int) data_get($selectedPrice, 'unit_price.amount', 0);
-            $currency = data_get($selectedPrice, 'unit_price.currency_code', 'USD');
-            $interval = data_get($selectedPrice, 'billing_cycle.interval', 'one-time');
-            $frequency = data_get($selectedPrice, 'billing_cycle.frequency');
-            $billingLabel = $frequency ? 'Every '.$frequency.' '.$interval : $interval;
-            $trial_period = data_get($selectedPrice, 'trial_period.frequency') ?? null;
-            $trial_interval = data_get($selectedPrice, 'trial_period.interval') ?? null;
-            $selectedCustomer = old('user');
-            $price_id = data_get($selectedPrice, 'id');
-            // dd($price_id);
+            // $amount = (int) data_get($selectedPrice, 'unit_price.amount', 0);
+            // $currency = data_get($selectedPrice, 'unit_price.currency_code', 'USD');
+            // $interval = data_get($selectedPrice, 'billing_cycle.interval', 'one-time');
+            // $frequency = data_get($selectedPrice, 'billing_cycle.frequency');
+            // $billingLabel = $frequency ? 'Every '.$frequency.' '.$interval : $interval;
+            // $trial_period = data_get($selectedPrice, 'trial_period.frequency') ?? null;
+            // $trial_interval = data_get($selectedPrice, 'trial_period.interval') ?? null;
+            // dd($selectedPrice);
         @endphp
 
         <main >
-            <form  method="POST" action="{{ route('billing.checkout') }}">
-            @csrf
-            <div class="tag">Checkout Preview</div>
-            <h1>Review product before payment.</h1>
-            <p>
+            <div class="tag">Checkout Form</div>
+            <h1>Connecting to Paddle checkout ...</h1>
+            {{-- <p>
                 Confirm the selected Paddle item first, then continue to the payment form.
-            </p>
+            </p> --}}
 
             <section class="product-card">
-                <div class="panel">
-                    
-                        <div class="eyebrow">Selected Plan</div>
-                        <h2 class="product-title">{{ data_get($selectedProduct, 'name', 'Selected Paddle product') }}</h2>
-                        <p class="description">{{ data_get($selectedProduct, 'description', 'This checkout will continue with the selected Paddle price.') }}</p>
-                        <div class="eyebrow">Product detail</div>
-                        <div class="meta-value">Price:  {{ number_format($amount / 100, 2) }} {{ $currency }}
-                        </div>
-                        <div class="meta-value">Billing: {{ $billingLabel }}
-                        </div>
-                        <label>
-                            <b>Customer:</b>
-                            <select name="user" required>
-                                <option value="">Select customer</option>
-                                @foreach ($user as $customer)
-                                    <option value="{{ $customer->id }}" @selected((string) $selectedCustomer === (string) $customer->id)>
-                                        {{ $customer->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <input type="hidden" name="price_id" value="{{$price_id}}" />
-                        @if($trial_period != null)
-                        <div class="meta-value">Trial Period: {{ $trial_period }} {{$trial_interval}}
-                        </div>
-                        @endif
-                </div>
+                Connecting to Paddle ...
             </section>
 
-            <div class="actions">
-                <button class="pay-button" type="submit" id="manual-checkout-button">Continue to payment</button>
+            {{-- <div class="actions">
+                <button class="pay-button" type="button" id="manual-checkout-button">Continue to payment</button>
                 <a class="back" href="{{ route('home')}}">Back</a>
-            </div>
-            </form>
+            </div> --}}
         </main>
 
-        {{-- <script type="application/json" id="checkout-options">@json($checkoutOptions)</script> --}}
+        <script type="application/json" id="checkout-options">@json($checkoutOptions)</script>
         <script>
-            // window.addEventListener('click', function () {
-            //     var manualButton = document.getElementById('manual-checkout-button');
-            //     var checkoutOptionsNode = document.getElementById('checkout-options');
+            window.addEventListener('load', function () {
+                var checkoutOptionsNode = document.getElementById('checkout-options');
+                var hasOpened = false;
 
-            //     function openCheckout() {
-            //         var checkoutOptions = JSON.parse(checkoutOptionsNode.textContent);
+                function openCheckout() {
+                    if (hasOpened) {
+                        return;
+                    }
 
-            //         Paddle.Checkout.open(checkoutOptions);
-            //     }
+                    hasOpened = true;
 
-            //     if (!manualButton || !checkoutOptionsNode) {
-            //         return;
-            //     }
+                    var checkoutOptions = JSON.parse(checkoutOptionsNode.textContent);
 
-            //     manualButton.addEventListener('click', function () {
-            //         openCheckout();
-            //     });
-            // });
+                    Paddle.Checkout.open(checkoutOptions);
+                }
+
+                if (!checkoutOptionsNode) {
+                    return;
+                }
+
+                openCheckout();
+            });
         </script>
     </body>
 </html>
