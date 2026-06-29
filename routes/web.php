@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 Route::get('/', function () {
-    $webhookUrl = route('cashier.webhook');
+    $webhookUrl = route('paddle.webhook');
     $sandbox = (bool) config('cashier.sandbox');
     $products = collect();
     $productPrices = collect();
@@ -99,7 +99,7 @@ Route::get('/', function () {
     return view('home', [
         'paddleReady' => filled(config('cashier.client_side_token'))
             && filled(config('cashier.api_key'))
-            && filled(config('cashier.webhook_secret'))
+            && filled(config('paddle.webhook_secret'))
             && filled(config('services.paddle.default_price_id')),
         'priceId' => config('services.paddle.default_price_id'),
         'webhookUrl' => $webhookUrl,
@@ -114,7 +114,7 @@ Route::get('/', function () {
 Route::get('/users/create', function () {
     return view('users-create', [
         'sandbox' => (bool) config('cashier.sandbox'),
-        'webhookUrl' => route('cashier.webhook'),
+        'webhookUrl' => route('paddle.webhook'),
     ]);
 })->name('users.create');
 
@@ -274,7 +274,7 @@ Route::get('/subscriptions', function () {
 })->name('subscriptions.index');
 
 Route::get('/subscriptions/create', function () {
-    $webhookUrl = route('cashier.webhook');
+    $webhookUrl = route('paddle.webhook');
     $sandbox = (bool) config('cashier.sandbox');
     $products = collect();
     $productPrices = collect();
@@ -333,7 +333,7 @@ Route::get('/subscriptions/create', function () {
     return view('subscriptions-create', [
         'paddleReady' => filled(config('cashier.client_side_token'))
             && filled(config('cashier.api_key'))
-            && filled(config('cashier.webhook_secret')),
+            && filled(config('paddle.webhook_secret')),
         'priceId' => $selectedPriceId,
         'webhookUrl' => $webhookUrl,
         'sandbox' => $sandbox,
@@ -625,5 +625,4 @@ Route::get('/billing/success', function () {
     ]);
 })->name('billing.success');
 
-Route::post('/paddle/webhook/manual', ManualPaddleWebhookController::class)
-    ->name('paddle.webhook.manual');
+Route::post('/paddle/webhook', ManualPaddleWebhookController::class)->name('paddle.webhook');

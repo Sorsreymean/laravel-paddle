@@ -9,10 +9,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ManualPaddleWebhookController extends WebhookController
 {
-    public function __construct()
-    {
-    }
-
     public function __invoke(Request $request): Response
     {
         Log::info('Manual Paddle webhook received', [

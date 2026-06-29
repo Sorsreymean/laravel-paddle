@@ -39,6 +39,8 @@ return [
         'default_price_id' => env('PADDLE_DEFAULT_PRICE_ID'),
         'demo_email' => env('PADDLE_DEMO_EMAIL', 'billing-demo@example.com'),
         'demo_name' => env('PADDLE_DEMO_NAME', 'Billing Demo User'),
+        'webhook_secret' => env('PADDLE_WEBHOOK_SECRET'),
+        'webhook_tolerance' => env('PADDLE_WEBHOOK_TOLERANCE', 5),
     ],
 
 ];
